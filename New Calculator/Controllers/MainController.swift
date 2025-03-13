@@ -9,7 +9,8 @@ import UIKit
 
 class MainController: UIViewController {
     
-    private let displayLabel = UILabel()
+    private let calculator = Calculator()
+    private let displayView = DisplayLabelView()
     private let layout = UICollectionViewFlowLayout()
     private var collectionView: UICollectionView!
     
@@ -28,19 +29,12 @@ class MainController: UIViewController {
     }
     
     func setupDisplayLabel() {
-        displayLabel.text = "0"
-        displayLabel.textColor = .white
-        displayLabel.font = .systemFont(ofSize: 48, weight: .bold)
-        displayLabel.textAlignment = .right
-        displayLabel.numberOfLines = 1
-        displayLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(displayLabel)
-        
+        view.addSubview(displayView)
         NSLayoutConstraint.activate([
-            displayLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            displayLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            displayLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            displayLabel.heightAnchor.constraint(equalToConstant: 80)
+            displayView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            displayView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            displayView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            displayView.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
     
@@ -61,7 +55,7 @@ class MainController: UIViewController {
         
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.topAnchor.constraint(equalTo: displayView.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -152,8 +146,75 @@ extension MainController: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let tappedButton = buttons[indexPath.item]
-        print("Tapped: \(tappedButton)")
+        let buttonTitle = buttons[indexPath.item].title
+        
+        switch buttonTitle {
+        case "=":
+            guard var text = displayView.label.text else {
+                return
+            }
+            
+            //Removing last certain symbols in case the expression is not finished
+            let symbols = ["+", "−", "×", "÷", "(", "."]
+            if let last = text.last, symbols.contains(String(last)) {
+                text.removeLast()
+            }
+            
+            let result = calculator.calculate(expression: text)
+            if result != displayView.label.text {
+                displayView.resultLabel.text = text
+            }
+            displayView.label.text = "\(result)"
+        case "C":
+            //Clear everything if got result from calculations
+            if displayView.gotResult {
+                displayView.resultLabel.text = ""
+                displayView.label.text = "0"
+                return
+            }
+            
+            //Nullify if last result was 'Undefined'
+            if displayView.label.text == "Undefined" {
+                displayView.label.text = "0"
+                return
+            }
+            
+            //Nullify if there is only one character in label
+            guard let text = displayView.label.text, text.count > 1 else {
+                displayView.label.text = "0"
+                return
+            }
+            
+            displayView.label.text?.removeLast()
+        default:
+            displayView.resultLabel.text = ""
+            
+            if displayView.label.text == "0" {
+                let symbols = ["+", "×", "÷", "-", ",", "(", ")"]
+                if symbols.contains(buttonTitle) {
+                    switch buttonTitle {
+                    case ",": displayView.label.text? = "0,"
+                    case "-": displayView.label.text? = buttonTitle
+                    default: displayView.label.text? = "0\(buttonTitle)"
+                    }
+                } else {
+                    displayView.label.text? = buttonTitle
+                }
+                
+                return
+            }
+            
+            let symbols = ["+", "×", "÷", "-", ","]
+            if let last = displayView.label.text?.last,
+               symbols.contains(String(last)),
+               symbols.contains(buttonTitle) {
+                displayView.label.text?.removeLast()
+                displayView.label.text? += buttonTitle
+                return
+            }
+            
+            displayView.label.text? += buttonTitle
+        }
     }
 }
 

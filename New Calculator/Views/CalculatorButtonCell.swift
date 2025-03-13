@@ -13,7 +13,7 @@ class CalculatorButtonCell: UICollectionViewCell {
         let label = UILabel()
         label.textAlignment = .center
         label.textColor = .white
-        label.font = .systemFont(ofSize: 35, weight: .light)
+        label.font = .systemFont(ofSize: 35, weight: .regular)
         label.minimumScaleFactor = 0.5
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
