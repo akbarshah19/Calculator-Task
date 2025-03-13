@@ -7,8 +7,9 @@
 
 import UIKit
 
-class MainController: UIViewController {
+class MainViewController: UIViewController {
     
+    private let userDefaultsManager = UserDefaultsManager()
     private let calculator = Calculator()
     private let displayView = DisplayLabelView()
     private let layout = UICollectionViewFlowLayout()
@@ -23,12 +24,24 @@ class MainController: UIViewController {
         
         isPortrait = UIDevice.current.orientation.isPortrait || view.frame.width < view.frame.height
         
+        setupNavBarButton()
         setupDisplayLabel()
         setupCollectionView()
         updateButtonsForCurrentOrientation()
     }
     
-    func setupDisplayLabel() {
+    private func setupNavBarButton() {
+        let historyButton = UIBarButtonItem(
+            image: UIImage(systemName: "list.bullet"),
+            style: .done,
+            target: self,
+            action: #selector(didPressHistory)
+        )
+        historyButton.tintColor = .orange
+        navigationItem.leftBarButtonItem = historyButton
+    }
+    
+    private func setupDisplayLabel() {
         view.addSubview(displayView)
         NSLayoutConstraint.activate([
             displayView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
@@ -38,7 +51,7 @@ class MainController: UIViewController {
         ])
     }
     
-    func setupCollectionView() {
+    private func setupCollectionView() {
         let spacing: CGFloat = 10
         
         layout.minimumLineSpacing = spacing
@@ -127,9 +140,23 @@ class MainController: UIViewController {
         super.traitCollectionDidChange(previousTraitCollection)
         updateLayoutForCurrentSize(view.frame.size)
     }
+    
+    @objc
+    private func didPressHistory() {
+        let navigationController = UINavigationController(rootViewController: HistoryViewController())
+
+        if let sheet = navigationController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = true
+//            sheet.preferredCornerRadius = 20
+        }
+
+        present(navigationController, animated: true)
+    }
 }
 
-extension MainController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension MainViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return buttons.count
@@ -163,7 +190,16 @@ extension MainController: UICollectionViewDataSource, UICollectionViewDelegate {
             let result = calculator.calculate(expression: text)
             if result != displayView.label.text {
                 displayView.resultLabel.text = text
+                
+                let history: History = .init(id: UUID().uuidString, expression: text, answer: result, date: .now)
+                do {
+                    try userDefaultsManager.addHistory(history)
+                    print("Saving", history)
+                } catch {
+                    print(error)
+                }
             }
+            displayView.resultLabel.text = text
             displayView.label.text = "\(result)"
         case "C":
             //Clear everything if got result from calculations
