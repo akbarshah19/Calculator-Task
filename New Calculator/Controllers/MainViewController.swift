@@ -16,19 +16,16 @@ class MainViewController: UIViewController {
     private let layout = UICollectionViewFlowLayout()
     private var collectionView: UICollectionView!
     
-    private var buttons: [CalculatorButton] = []
+    private var buttons: [CalculatorButton] = Constants.portraitButtons
     private var isPortrait = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-        
-        isPortrait = UIDevice.current.orientation.isPortrait || view.frame.width < view.frame.height
-        
+                
         setupNavBarButton()
         setupDisplayLabel()
         setupCollectionView()
-        updateButtonsForCurrentOrientation()
     }
     
     private func setupNavBarButton() {
@@ -76,11 +73,6 @@ class MainViewController: UIViewController {
         ])
         
         updateLayoutForCurrentSize(view.frame.size)
-    }
-    
-    private func updateButtonsForCurrentOrientation() {
-        buttons = isPortrait ? Constants.portraitButtons : Constants.landscapeButtons
-        collectionView.reloadData()
     }
     
     private func updateLayoutForCurrentSize(_ size: CGSize) {
