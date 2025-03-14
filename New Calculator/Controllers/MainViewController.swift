@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class MainViewController: UIViewController {
     
@@ -124,21 +125,10 @@ class MainViewController: UIViewController {
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        
         coordinator.animate(
             alongsideTransition: { [weak self] _ in
                 self?.updateLayoutForCurrentSize(size)
             }, completion: nil)
-    }
-    
-    override func viewSafeAreaInsetsDidChange() {
-        super.viewSafeAreaInsetsDidChange()
-        updateLayoutForCurrentSize(view.frame.size)
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        updateLayoutForCurrentSize(view.frame.size)
     }
     
     @objc
@@ -149,7 +139,7 @@ class MainViewController: UIViewController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
             sheet.prefersScrollingExpandsWhenScrolledToEdge = true
-//            sheet.preferredCornerRadius = 20
+            sheet.preferredCornerRadius = 20
         }
 
         present(navigationController, animated: true)
@@ -253,3 +243,6 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
 }
 
+#Preview {
+    UIKitPresenter(viewController: MainViewController())
+}
