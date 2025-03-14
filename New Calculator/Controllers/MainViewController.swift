@@ -194,7 +194,6 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
                 let history: History = .init(id: UUID().uuidString, expression: text, answer: result, date: .now)
                 do {
                     try userDefaultsManager.addHistory(history)
-                    print("Saving", history)
                 } catch {
                     print(error)
                 }

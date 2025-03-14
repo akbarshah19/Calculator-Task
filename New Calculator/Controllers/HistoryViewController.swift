@@ -25,6 +25,7 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let button = UIButton(type: .system)
         button.setTitle("Edit", for: .normal)
         button.setTitleColor(.orange, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -33,6 +34,7 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let button = UIButton(type: .system)
         button.setTitle("Clear", for: .normal)
         button.setTitleColor(.red, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -109,12 +111,30 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
     @objc
     private func didPressEdit() {
         tableView.setEditing(!tableView.isEditing, animated: true)
+        if tableView.isEditing {
+            editButton.setTitle("Done", for: .normal)
+        } else {
+            editButton.setTitle("Edit", for: .normal)
+        }
     }
     
     @objc
     private func didPressClear() {
-        userDefaultsManager.clearHistory()
-        getHistory()
+        let actionSheet = UIAlertController(
+            title: "All calculations will be deleted. This cannot be undone.",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        let clear = UIAlertAction(title: "Clear History", style: .destructive) { [weak self] _ in
+            self?.userDefaultsManager.clearHistory()
+            self?.getHistory()
+        }
+        actionSheet.addAction(cancel)
+        actionSheet.addAction(clear)
+        
+        present(actionSheet, animated: true)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -156,7 +176,7 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         do {
             let result = try userDefaultsManager.getHistory()
             DispatchQueue.main.async { [weak self] in
-                self?.historyList = result
+                self?.historyList = result.reversed()
                 self?.blurView.isHidden = result.count <= 0
                 self?.setupBottomBar()
                 self?.tableView.reloadData()
