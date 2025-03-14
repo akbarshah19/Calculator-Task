@@ -1,12 +1,11 @@
 //
 //  HistoryViewController.swift
-//  Calculator-Task
+//  New Calculator
 //
-//  Created by Akbar Jumanazarov on 11/03/25.
+//  Created by Akbar Jumanazarov on 14/03/25.
 //
 
 import UIKit
-import SwiftUI
 
 class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
@@ -41,7 +40,6 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     private let tableView: UITableView = {
         let table = UITableView()
-        table.allowsMultipleSelectionDuringEditing = true
         table.backgroundColor = .secondarySystemBackground
         return table
     }()
@@ -82,7 +80,7 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         navigationItem.rightBarButtonItem = doneButton
     }
     
-    private func setupBottomBar() {        
+    private func setupBottomBar() {
         view.addSubview(blurView)
         NSLayoutConstraint.activate([
             blurView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -185,8 +183,4 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
             print(error)
         }
     }
-}
-
-#Preview {
-    UIKitPresenter(viewController: HistoryViewController())
 }

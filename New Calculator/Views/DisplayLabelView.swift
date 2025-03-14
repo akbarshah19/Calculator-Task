@@ -15,8 +15,6 @@ class DisplayLabelView: UIView {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceHorizontal = true
         scrollView.bounces = false
-//        scrollView.layer.borderColor = UIColor.blue.cgColor
-//        scrollView.layer.borderWidth = 2
         return scrollView
     }()
     
@@ -32,8 +30,6 @@ class DisplayLabelView: UIView {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceHorizontal = true
         scrollView.bounces = false
-//        scrollView.layer.borderColor = UIColor.red.cgColor
-//        scrollView.layer.borderWidth = 2
         return scrollView
     }()
     
@@ -69,8 +65,6 @@ class DisplayLabelView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
-//        layer.borderColor = UIColor.green.cgColor
-//        layer.borderWidth = 2
         
         addSubview(resultScrollView)
         resultScrollView.addSubview(resultContainerView)
