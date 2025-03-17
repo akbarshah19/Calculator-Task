@@ -18,22 +18,10 @@ class MainViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
-        
+        view.backgroundColor = .black        
         keyPadView.delegate = self
-               
         setupUI()
-        setupBindings()
         setupNavBarButton()
-    }
-    
-    private func setupBindings() {
-        viewModel.onDisplayUpdate = { [weak self] result, expr in
-            self?.displayView.resultLabel.text = expr
-            self?.displayView.label.text = result
-            self?.displayView.scrollResultToRight()
-            self?.displayView.scrollToRight()
-        }
     }
     
     private func setupNavBarButton() {
@@ -102,20 +90,27 @@ class MainViewController: UIViewController {
 
 extension MainViewController: KeyPadViewDelegate {
     func didPressClear() {
-        let newText = viewModel.clear(displayText: displayView.label.text ?? "", gotResult: displayView.gotResult)
-        displayView.label.text = newText
-        displayView.resultLabel.text = ""
+        viewModel.clear(displayText: displayView.label.text ?? "", gotResult: displayView.gotResult) { [weak self] output in
+            self?.displayView.label.text = output
+            self?.displayView.resultLabel.text = ""
+        }
     }
     
     func didPressCalculate() {
-        viewModel.calculate(expression: displayView.label.text ?? "")
+        viewModel.calculate(expression: displayView.label.text ?? "") { [weak self] result, expression in
+            self?.displayView.label.text = result
+            self?.displayView.resultLabel.text = expression
+            self?.displayView.scrollResultToRight()
+            self?.displayView.scrollToRight()
+        }
     }
     
     func didPressKey(_ text: String) {
-        let updated = viewModel.appendSymbol(currentText: displayView.label.text ?? "", symbol: text)
-        displayView.label.text = updated
-        displayView.resultLabel.text = ""
-        displayView.scrollToRight()
+        viewModel.appendSymbol(labelText: displayView.label.text ?? "", input: text) { [weak self] output in
+            self?.displayView.label.text = output
+            self?.displayView.resultLabel.text = ""
+            self?.displayView.scrollToRight()
+        }
     }
 }
 
