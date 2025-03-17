@@ -46,8 +46,14 @@ class Calculator {
     private func tokenize(_ expression: String) -> [String] {
         var tokens: [String] = []
         var number = ""
-        
-        for char in expression {
+        var prevChar: Character?
+
+        let characters = Array(expression)
+        var i = 0
+
+        while i < characters.count {
+            let char = characters[i]
+
             if char.isNumber || char == "." {
                 number.append(char)
             } else {
@@ -55,19 +61,30 @@ class Calculator {
                     tokens.append(number)
                     number = ""
                 }
-                if char != " " {
-                    tokens.append(String(char))
+
+                if char == "-" {
+                    if prevChar == nil || "+-×÷(".contains(prevChar!) {
+                        number.append(char)
+                    } else {
+                        tokens.append(String(char))
+                    }
+                } else {
+                    if char != " " {
+                        tokens.append(String(char))
+                    }
                 }
             }
+
+            prevChar = char
+            i += 1
         }
-        
+
         if !number.isEmpty {
             tokens.append(number)
         }
-        
+
         return tokens
     }
-
     private func infixToPostfix(_ tokens: [String]) -> [String] {
         var output: [String] = []
         var operators: [String] = []
@@ -95,7 +112,7 @@ class Calculator {
         while !operators.isEmpty {
             output.append(operators.removeLast())
         }
-
+        print(output)
         return output
     }
 

@@ -49,7 +49,7 @@ class MainViewModel {
                 return
             }
             
-            let symbols = ["+", "×", "÷", "-", ",", "(", ")"]
+            let symbols = ["+", "×", "÷", "-", ","]
             if symbols.contains(input) {
                 switch input {
                 case ",":
