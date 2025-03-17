@@ -17,6 +17,7 @@ class MainViewController: UIViewController {
     }()
     
     private let displayView = DisplayLabelView()
+    
     private let layout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 10
@@ -31,9 +32,9 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-                
-        setupNavBarButton()
+               
         setupUI()
+        setupNavBarButton()
         
         viewModel.onDisplayUpdate = { [weak self] result, expr in
             self?.displayView.resultLabel.text = expr
@@ -64,14 +65,6 @@ class MainViewController: UIViewController {
             containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
-        containerView.addSubview(displayView)
-        NSLayoutConstraint.activate([
-            displayView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            displayView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            displayView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            displayView.heightAnchor.constraint(equalToConstant: 80)
-        ])
-                
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .black
@@ -82,50 +75,31 @@ class MainViewController: UIViewController {
         
         containerView.addSubview(collectionView)
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: displayView.bottomAnchor, constant: 10),
             collectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
         ])
-    }
-    
-    private func updateLayout() {
-        let size = view.frame.size
-        let spacing: CGFloat = 10
-        let isPortrait = size.width < size.height
-        viewModel.buttons = isPortrait ? Constants.portraitButtons : Constants.landscapeButtons
         
-        let safeAreaInsets = view.safeAreaInsets
-        let availableWidth = size.width - safeAreaInsets.left - safeAreaInsets.right
-        let availableHeight = size.height - safeAreaInsets.top - safeAreaInsets.bottom - 116
-        
-        if isPortrait {
-            let columns: Int = 4
-            
-            let totalHorizontalSpacing: CGFloat = spacing * (CGFloat(columns) + 1)
-            let cellWidth: CGFloat = (availableWidth - totalHorizontalSpacing) / CGFloat(columns)
-            layout.itemSize = CGSize(width: cellWidth, height: cellWidth)
-        } else {
-            let columns: Int = 5
-            let rows: Int = 4
-            
-            let totalHorizontalSpacing: CGFloat = spacing * (CGFloat(columns) + 1)
-            let cellWidth: CGFloat = (availableWidth - totalHorizontalSpacing) / CGFloat(columns)
-            
-            let totalVerticalSpacing: CGFloat = spacing * (CGFloat(rows) + 1)
-            let cellHeight: CGFloat = (availableHeight - totalVerticalSpacing) / CGFloat(rows)
-            
-            let finalSize = CGSize(width: cellWidth, height: cellHeight)
-            layout.itemSize = finalSize            
-        }
-        
-        layout.invalidateLayout()
-        collectionView.reloadData()
+        containerView.addSubview(displayView)
+        NSLayoutConstraint.activate([
+            displayView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            displayView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            displayView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            displayView.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -16)
+        ])
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        updateLayout()
+        
+        let spacing: CGFloat = 10
+        let hSpacing: CGFloat = spacing * 3.0
+        let cellWidth: CGFloat = (containerView.frame.width - hSpacing) / 4.0
+        layout.itemSize = CGSize(width: cellWidth, height: cellWidth)
+        let collectionHeight: CGFloat = ((containerView.frame.width - hSpacing) / 4.0) * 5.0 + 40.0
+        NSLayoutConstraint.activate([
+            collectionView.heightAnchor.constraint(equalToConstant: collectionHeight)
+        ])
     }
     
     @objc

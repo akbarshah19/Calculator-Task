@@ -78,10 +78,28 @@ class DisplayLabelView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        NSLayoutConstraint.activate([
-            resultScrollView.topAnchor.constraint(equalTo: topAnchor),
+        NSLayoutConstraint.activate([            
+            labelScrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            labelScrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            labelScrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            labelScrollView.heightAnchor.constraint(equalToConstant: 70),
+            
+            labelContainerView.topAnchor.constraint(equalTo: labelScrollView.topAnchor),
+            labelContainerView.bottomAnchor.constraint(equalTo: labelScrollView.bottomAnchor),
+            labelContainerView.trailingAnchor.constraint(equalTo: labelScrollView.trailingAnchor),
+            labelContainerView.leadingAnchor.constraint(greaterThanOrEqualTo: labelScrollView.leadingAnchor),
+            labelContainerView.heightAnchor.constraint(equalTo: labelScrollView.heightAnchor),
+            labelContainerView.widthAnchor.constraint(greaterThanOrEqualTo: labelScrollView.widthAnchor),
+            
+            label.bottomAnchor.constraint(equalTo: labelContainerView.bottomAnchor),
+            label.trailingAnchor.constraint(equalTo: labelContainerView.trailingAnchor),
+            label.leadingAnchor.constraint(greaterThanOrEqualTo: labelContainerView.leadingAnchor),
+            label.heightAnchor.constraint(equalToConstant: 60),
+            label.widthAnchor.constraint(greaterThanOrEqualTo: labelContainerView.widthAnchor),
+            
             resultScrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             resultScrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            resultScrollView.bottomAnchor.constraint(equalTo: label.topAnchor),
             resultScrollView.heightAnchor.constraint(equalToConstant: 24),
             
             resultContainerView.topAnchor.constraint(equalTo: resultScrollView.topAnchor),
@@ -96,24 +114,6 @@ class DisplayLabelView: UIView {
             resultLabel.leadingAnchor.constraint(greaterThanOrEqualTo: resultContainerView.leadingAnchor),
             resultLabel.heightAnchor.constraint(equalToConstant: 20),
             resultLabel.widthAnchor.constraint(greaterThanOrEqualTo: resultContainerView.widthAnchor),
-            
-            labelScrollView.topAnchor.constraint(equalTo: resultScrollView.bottomAnchor),
-            labelScrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            labelScrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            labelScrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            
-            labelContainerView.topAnchor.constraint(equalTo: labelScrollView.topAnchor),
-            labelContainerView.bottomAnchor.constraint(equalTo: labelScrollView.bottomAnchor),
-            labelContainerView.trailingAnchor.constraint(equalTo: labelScrollView.trailingAnchor),
-            labelContainerView.leadingAnchor.constraint(greaterThanOrEqualTo: labelScrollView.leadingAnchor),
-            labelContainerView.heightAnchor.constraint(equalTo: labelScrollView.heightAnchor),
-            labelContainerView.widthAnchor.constraint(greaterThanOrEqualTo: labelScrollView.widthAnchor),
-            
-            label.bottomAnchor.constraint(equalTo: labelContainerView.bottomAnchor),
-            label.trailingAnchor.constraint(equalTo: labelContainerView.trailingAnchor),
-            label.leadingAnchor.constraint(greaterThanOrEqualTo: labelContainerView.leadingAnchor),
-            label.heightAnchor.constraint(equalToConstant: 60),
-            label.widthAnchor.constraint(greaterThanOrEqualTo: labelContainerView.widthAnchor)
         ])
     }
     
