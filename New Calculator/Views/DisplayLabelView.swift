@@ -118,7 +118,7 @@ class DisplayLabelView: UIView {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("Unsupported")
+        fatalError("Unsupported: DisplayLabelView")
     }
 
     public func scrollToRight() {
