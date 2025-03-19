@@ -8,9 +8,13 @@
 import UIKit
 
 class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    var didSelect: ((_ history: History) -> Void)?
         
     private var userDefaultsManager = UserDefaultsManager()
     private var historyList: [History] = []
+    
+    private let emptyView = HistoryEmptyView()
     
     private let blurView: UIVisualEffectView = {
         let blur = UIBlurEffect(style: .systemUltraThinMaterial)
@@ -41,22 +45,32 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     private let tableView: UITableView = {
         let table = UITableView()
+        table.isHidden = true
         table.backgroundColor = .secondarySystemBackground
         return table
+    }()
+    
+    private let doneButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Done", for: .normal)
+        button.setTitleColor(.orange, for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        return button
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         tableView.delegate = self
         tableView.dataSource = self
         
         getHistory()
-        
         addSubviews()
-        addNavButtons()
         setupBottomBar()
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: doneButton)
         tableView.register(HistoryTableViewCell.self, forCellReuseIdentifier: HistoryTableViewCell.reuseIdentifier)
+        doneButton.addTarget(self, action: #selector(didPressDone), for: .touchUpInside)
         editButton.addTarget(self, action: #selector(didPressEdit), for: .touchUpInside)
         clearButton.addTarget(self, action: #selector(didPressClear), for: .touchUpInside)
     }
@@ -70,18 +84,15 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.frame = view.bounds
     }
     
-    private func addNavButtons() {
-        let doneButton = UIBarButtonItem(
-            title: "Done",
-            style: .done,
-            target: self,
-            action: #selector(didPressDone)
-        )
-        doneButton.tintColor = .orange
-        navigationItem.rightBarButtonItem = doneButton
-    }
-    
     private func setupBottomBar() {
+        view.addSubview(emptyView)
+        NSLayoutConstraint.activate([
+            emptyView.topAnchor.constraint(equalTo: view.topAnchor),
+            emptyView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            emptyView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            emptyView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
         view.addSubview(blurView)
         NSLayoutConstraint.activate([
             blurView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -113,9 +124,11 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         if tableView.isEditing {
             editButton.setTitle("Done", for: .normal)
             clearButton.isEnabled = false
+            doneButton.isHidden = true
         } else {
             editButton.setTitle("Edit", for: .normal)
             clearButton.isEnabled = true
+            doneButton.isHidden = false
         }
     }
     
@@ -152,6 +165,10 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if !tableView.isEditing {
+            didSelect?(historyList[indexPath.row])
+            dismiss(animated: true)
+        }
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -178,7 +195,17 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
             let result = try userDefaultsManager.getHistory()
             DispatchQueue.main.async { [weak self] in
                 self?.historyList = result.reversed()
-                self?.blurView.isHidden = result.count <= 0
+                
+                if result.count > 0 {
+                    self?.tableView.isHidden = false
+                    self?.blurView.isHidden = false
+                    self?.emptyView.isHidden = true
+                } else {
+                    self?.emptyView.isHidden = false
+                    self?.tableView.isHidden = true
+                    self?.blurView.isHidden = true
+                }
+                
                 self?.setupBottomBar()
                 self?.tableView.reloadData()
             }

@@ -75,15 +75,19 @@ class MainViewController: UIViewController {
     
     @objc
     private func presentHistory() {
-        let navigationController = UINavigationController(rootViewController: HistoryViewController())
-
+        let vc = HistoryViewController()
+        vc.didSelect = { [weak self] history in
+            self?.displayView.label.text = history.answer
+            self?.displayView.resultLabel.text = history.expression
+        }
+        
+        let navigationController = UINavigationController(rootViewController: vc)
         if let sheet = navigationController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
             sheet.prefersScrollingExpandsWhenScrolledToEdge = true
             sheet.preferredCornerRadius = 20
         }
-
         present(navigationController, animated: true)
     }
 }
