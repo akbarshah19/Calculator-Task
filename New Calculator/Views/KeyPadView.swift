@@ -14,20 +14,19 @@ protocol KeyPadViewDelegate: AnyObject {
     func didPressKey(_ text: String)
 }
 
-class KeyPadView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
+class KeyPadView: UIView, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
-    var buttons: [CalculatorButton] = Constants.portraitButtons
+    private let spacing: CGFloat = 10.0
+    private var buttons: [CalculatorButton] {
+        if UIDevice.current.orientation.isLandscape {
+            return Constants.portraitButtons
+        } else {
+            return Constants.landscapeButtons
+        }
+    }
     
     public weak var delegate: KeyPadViewDelegate?
-    
-    private let layout: UICollectionViewFlowLayout = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 10
-        return layout
-    }()
-    
-    private var collectionView: UICollectionView!
+    var collectionView: UICollectionView!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -40,12 +39,17 @@ class KeyPadView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     }
 
     private func setup() {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = spacing
+        layout.minimumInteritemSpacing = spacing
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .black
+        collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.isScrollEnabled = false
-        collectionView.delegate = self
         collectionView.register(CalculatorButtonCell.self, forCellWithReuseIdentifier: "cell")
         
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
@@ -63,9 +67,10 @@ class KeyPadView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return buttons.count
     }
-    
+        
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? CalculatorButtonCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? CalculatorButtonCell
+        else {
             return UICollectionViewCell()
         }
         
@@ -87,13 +92,15 @@ class KeyPadView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
         }
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        let spacing: CGFloat = 10
-        let hSpacing: CGFloat = spacing * 3.0
-        let cellWidth: CGFloat = (frame.width - hSpacing) / 4.0
-        layout.itemSize = CGSize(width: cellWidth, height: cellWidth)
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if UIDevice.current.orientation.isLandscape {
+            let width = (self.frame.size.width - 4 * spacing) / 5
+            let height = (self.frame.size.height - 3 * spacing) / 4
+            return .init(width: width, height: height)
+        } else {
+            let width = (self.frame.size.width - 3 * spacing) / 4
+            return .init(width: width, height: width)
+        }
     }
     
     @objc

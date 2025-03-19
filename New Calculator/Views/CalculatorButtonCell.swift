@@ -41,7 +41,7 @@ class CalculatorButtonCell: UICollectionViewCell {
     
     override var isHighlighted: Bool {
         didSet {
-            contentView.alpha = isHighlighted ? 0.5 : 1.0
+            contentView.alpha = isHighlighted ? 0.6 : 1.0
         }
     }
 

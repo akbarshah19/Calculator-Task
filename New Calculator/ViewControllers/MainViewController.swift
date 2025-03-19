@@ -8,6 +8,12 @@
 import UIKit
 import SwiftUI
 
+enum Calculatortype: Identifiable, Hashable {
+    case standard, creative
+    
+    var id: Self { return self }
+}
+
 class MainViewController: UIViewController {
     
     private let containerView = UIView()
@@ -15,6 +21,11 @@ class MainViewController: UIViewController {
     private let keyPadView = KeyPadView()
     
     private let viewModel = MainViewModel()
+    private var keyPadViewHeight: NSLayoutConstraint?
+    private var intitialCellHeight: CGFloat {
+        let cellWidth = (view.frame.size.width - 30 - 20) / 4
+        return cellWidth * 5 + 40
+    }
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,6 +63,8 @@ class MainViewController: UIViewController {
             keyPadView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             keyPadView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
         ])
+        keyPadViewHeight = keyPadView.heightAnchor.constraint(equalToConstant: intitialCellHeight)
+        keyPadViewHeight?.isActive = true
         
         containerView.addSubview(displayView)
         NSLayoutConstraint.activate([
@@ -62,15 +75,19 @@ class MainViewController: UIViewController {
         ])
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        let totalWidth = size.width - 20
         
-        let spacing: CGFloat = 10
-        let hSpacing: CGFloat = spacing * 3.0
-        let collectionHeight: CGFloat = ((containerView.frame.width - hSpacing) / 4.0) * 5.0 + 40.0
-        NSLayoutConstraint.activate([
-            keyPadView.heightAnchor.constraint(equalToConstant: collectionHeight)
-        ])
+        if UIDevice.current.orientation.isLandscape {
+            let totalHeight = size.height * 0.6
+            self.keyPadViewHeight?.constant = totalHeight
+        } else {
+            let cellWidth = (totalWidth - 30) / 4
+            self.keyPadViewHeight?.constant = cellWidth * 5 + 40
+        }
+        
+        self.keyPadView.collectionView.reloadData()
     }
     
     @objc
