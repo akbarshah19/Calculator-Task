@@ -33,6 +33,7 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let button = UIButton(type: .system)
         button.setTitle("Clear", for: .normal)
         button.setTitleColor(.red, for: .normal)
+        button.setTitleColor(.gray, for: .disabled)
         button.titleLabel?.font = .systemFont(ofSize: 18)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -111,8 +112,10 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.setEditing(!tableView.isEditing, animated: true)
         if tableView.isEditing {
             editButton.setTitle("Done", for: .normal)
+            clearButton.isEnabled = false
         } else {
             editButton.setTitle("Edit", for: .normal)
+            clearButton.isEnabled = true
         }
     }
     

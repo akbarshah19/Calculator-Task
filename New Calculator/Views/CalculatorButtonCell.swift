@@ -38,6 +38,12 @@ class CalculatorButtonCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override var isHighlighted: Bool {
+        didSet {
+            contentView.alpha = isHighlighted ? 0.5 : 1.0
+        }
+    }
 
     override func layoutSubviews() {
         super.layoutSubviews()

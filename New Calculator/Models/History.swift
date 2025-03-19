@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct History: Identifiable, Codable {
+struct History: Identifiable, Codable, Equatable {
     let id: String
     let expression: String
     let answer: String

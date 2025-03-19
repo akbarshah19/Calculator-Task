@@ -96,6 +96,11 @@ extension MainViewController: KeyPadViewDelegate {
         }
     }
     
+    func didPressClearAll() {
+        displayView.label.text = "0"
+        displayView.resultLabel.text = ""
+    }
+    
     func didPressCalculate() {
         viewModel.calculate(expression: displayView.label.text ?? "") { [weak self] result, expression in
             self?.displayView.label.text = result

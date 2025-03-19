@@ -9,6 +9,7 @@ import UIKit
 
 protocol KeyPadViewDelegate: AnyObject {
     func didPressClear()
+    func didPressClearAll()
     func didPressCalculate()
     func didPressKey(_ text: String)
 }
@@ -46,6 +47,9 @@ class KeyPadView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
         collectionView.isScrollEnabled = false
         collectionView.delegate = self
         collectionView.register(CalculatorButtonCell.self, forCellWithReuseIdentifier: "cell")
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        collectionView.addGestureRecognizer(longPress)
         
         addSubview(collectionView)
         NSLayoutConstraint.activate([
@@ -90,5 +94,16 @@ class KeyPadView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
         let hSpacing: CGFloat = spacing * 3.0
         let cellWidth: CGFloat = (frame.width - hSpacing) / 4.0
         layout.itemSize = CGSize(width: cellWidth, height: cellWidth)
+    }
+    
+    @objc
+    private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            let point = gesture.location(in: collectionView)
+            if let indexPath = collectionView.indexPathForItem(at: point),
+               buttons[indexPath.row].title == "C" {
+                delegate?.didPressClearAll()
+            }
+        }
     }
 }

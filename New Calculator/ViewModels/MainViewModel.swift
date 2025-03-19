@@ -69,9 +69,7 @@ class MainViewModel {
         }
 
         let symbols = ["+", "×", "÷", "-", ","]
-        if let last = text.last,
-           symbols.contains(String(last)),
-           symbols.contains(input) {
+        if let last = text.last, symbols.contains(String(last)), symbols.contains(input) {
             text.removeLast()
             text += input
         } else {
