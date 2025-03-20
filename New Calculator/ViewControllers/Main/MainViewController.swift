@@ -14,6 +14,11 @@ enum Calculatortype: Identifiable, Hashable {
     var id: Self { return self }
 }
 
+protocol MainDisplayLogic: AnyObject {
+    func displayOutput(_ viewModel: MainModels.OutputViewModel)
+    func displayResult(_ viewModel: MainModels.ResultViewModel)
+}
+
 class MainViewController: UIViewController {
     
     private let containerView = UIView()
