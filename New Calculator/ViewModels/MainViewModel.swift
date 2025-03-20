@@ -22,10 +22,10 @@ class MainViewModel {
         }
 
         let result = calculator.calculate(expression: expr)
-        completion(result, expr)
         
         if result != expression {
             let history = History(id: UUID().uuidString, expression: expr, answer: result, date: .now)
+            completion(result, expr)
             try? userDefaultsManager.addHistory(history)
         }
     }

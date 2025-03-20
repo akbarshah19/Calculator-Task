@@ -11,13 +11,16 @@ import Vision
 
 class CreativeViewController: UIViewController {
 
+    private let textRecognizer = TextRecognizer()
     private var labelView = CreativeLabelView()
     private var canvasView: TrackingCanvasView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCanvas()
+        navigationItem.title = "Creative"
         labelView.isHidden = true
+        setupNavButtons()
     }
 
     private func setupCanvas() {
@@ -26,7 +29,7 @@ class CreativeViewController: UIViewController {
         
         view.addSubview(canvasView)
         NSLayoutConstraint.activate([
-            canvasView.topAnchor.constraint(equalTo: view.topAnchor),
+            canvasView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             canvasView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             canvasView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             canvasView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -49,13 +52,56 @@ class CreativeViewController: UIViewController {
             }
         }
 
-        canvasView.onDrawingEnded = {
+        canvasView.onDrawingEnded = { [weak self] in
+            guard let strongSelf = self else { return }
+            var text: String = ""
+            let image = strongSelf.canvasView.drawing.image(
+                from: strongSelf.canvasView.bounds,
+                scale: UIScreen.main.scale
+            )
+            
             UIView.animate(withDuration: 0.5) { [weak self] in
                 self?.labelView.alpha = 1
+                self?.textRecognizer.recognizeText(from: image) { recognizedText in
+                    text = recognizedText
+                }
             } completion: { [weak self] _ in
                 self?.labelView.isHidden = false
+                DispatchQueue.main.async { [weak self] in
+                    self?.labelView.text = text
+                }
             }
         }
+    }
+    
+    private func setupNavButtons() {
+        let undo = UIBarButtonItem(
+            image: UIImage(systemName: "arrow.counterclockwise"),
+            style: .done,
+            target: self,
+            action: #selector(didTapUndo)
+        )
+        undo.tintColor = .orange
+        
+        let clear = UIBarButtonItem(
+            title: "Clear",
+            style: .plain,
+            target: self,
+            action: #selector(didTapClear)
+        )
+        clear.tintColor = .red
+        
+        navigationItem.rightBarButtonItems = [clear, undo]
+    }
+    
+    @objc
+    func didTapUndo() {
+        canvasView.undo()
+    }
+    
+    @objc
+    func didTapClear() {
+        canvasView.clear()
     }
 }
 

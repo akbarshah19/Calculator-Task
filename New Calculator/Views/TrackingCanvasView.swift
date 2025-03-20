@@ -32,4 +32,16 @@ class TrackingCanvasView: PKCanvasView {
         super.touchesEnded(touches, with: event)
         onDrawingEnded?()
     }
+    
+    func undo() {
+        var temp = drawing
+        if !temp.strokes.isEmpty {
+            temp.strokes.removeLast()
+            drawing = temp
+        }
+    }
+    
+    func clear() {
+        drawing = PKDrawing()
+    }
 }
