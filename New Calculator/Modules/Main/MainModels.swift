@@ -16,4 +16,9 @@ enum MainModels {
         let resultText: String
         let expressionText: String
     }
+    
+    struct HistoryViewModel {
+        let result: String
+        let expression: String
+    }
 }

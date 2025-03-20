@@ -8,12 +8,6 @@
 import UIKit
 import SwiftUI
 
-enum Calculatortype: Identifiable, Hashable {
-    case standard, creative
-    
-    var id: Self { return self }
-}
-
 protocol MainDisplayLogic: AnyObject {
     func displayOutput(_ viewModel: MainModels.OutputViewModel)
     func displayResult(_ viewModel: MainModels.ResultViewModel)
@@ -21,11 +15,14 @@ protocol MainDisplayLogic: AnyObject {
 
 class MainViewController: UIViewController {
     
+    var interactor: MainBusinessLogic?
+    private var router: MainRoutingLogic?
+    
     private let containerView = UIView()
     private let displayView = DisplayLabelView()
     private let keyPadView = KeyPadView()
     
-    private let viewModel = MainViewModel()
+    private let viewModel = MainIOWorker()
     private var keyPadViewHeight: NSLayoutConstraint?
     private var intitialCellHeight: CGFloat {
         let cellWidth = (view.frame.size.width - 30 - 20) / 4
@@ -34,10 +31,26 @@ class MainViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black        
+        setupVIP()
+        view.backgroundColor = .black
         keyPadView.delegate = self
         setupUI()
         setupNavBarButton()
+    }
+    
+    private func setupVIP() {
+        let viewController = self
+        let interactor = MainInteractor()
+        let presenter = MainPresenter()
+        let router = MainRouter()
+        
+        viewController.interactor = interactor
+        interactor.presenter = presenter
+        presenter.viewController = viewController
+        router.viewController = viewController
+        
+        self.interactor = interactor
+        self.router = router
     }
     
     private func setupNavBarButton() {
@@ -97,51 +110,45 @@ class MainViewController: UIViewController {
     
     @objc
     private func presentHistory() {
-        let vc = HistoryViewController()
-        vc.didSelect = { [weak self] history in
-            self?.displayView.label.text = history.answer
-            self?.displayView.resultLabel.text = history.expression
+        router?.routeToHistory(from: self) { history in
+            print(history)
         }
+    }
+}
+
+extension MainViewController: MainDisplayLogic {
+    func displayOutput(_ viewModel: MainModels.OutputViewModel) {
+        displayView.label.text = viewModel.outputText
+        displayView.resultLabel.text = ""
         
-        let navigationController = UINavigationController(rootViewController: vc)
-        if let sheet = navigationController.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = true
-            sheet.preferredCornerRadius = 20
-        }
-        present(navigationController, animated: true)
+        displayView.scrollToRight()
+        displayView.scrollResultToRight()
+    }
+
+    func displayResult(_ viewModel: MainModels.ResultViewModel) {
+        displayView.label.text = viewModel.resultText
+        displayView.resultLabel.text = viewModel.expressionText
+        
+        displayView.scrollToRight()
+        displayView.scrollResultToRight()
     }
 }
 
 extension MainViewController: KeyPadViewDelegate {
     func didPressClear() {
-        viewModel.clear(displayText: displayView.label.text ?? "", gotResult: displayView.gotResult) { [weak self] output in
-            self?.displayView.label.text = output
-            self?.displayView.resultLabel.text = ""
-        }
+        interactor?.clear(displayText: displayView.label.text ?? "", gotResult: displayView.gotResult)
     }
-    
+
     func didPressClearAll() {
-        displayView.label.text = "0"
-        displayView.resultLabel.text = ""
+        interactor?.clearAll()
     }
-    
+
     func didPressCalculate() {
-        viewModel.calculate(expression: displayView.label.text ?? "") { [weak self] result, expression in
-            self?.displayView.label.text = result
-            self?.displayView.resultLabel.text = expression
-            self?.displayView.scrollResultToRight()
-            self?.displayView.scrollToRight()
-        }
+        interactor?.calculate(expression: displayView.label.text ?? "")
     }
-    
+
     func didPressKey(_ text: String) {
-        viewModel.appendSymbol(labelText: displayView.label.text ?? "", input: text) { [weak self] output in
-            self?.displayView.label.text = output
-            self?.displayView.resultLabel.text = ""
-            self?.displayView.scrollToRight()
-        }
+        interactor?.appendSymbol(labelText: displayView.label.text ?? "", input: text)
     }
 }
 

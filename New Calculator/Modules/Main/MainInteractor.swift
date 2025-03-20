@@ -9,18 +9,25 @@ import Foundation
 
 protocol MainBusinessLogic {
     func clear(displayText: String, gotResult: Bool)
+    func clearAll()
     func calculate(expression: String)
     func appendSymbol(labelText: String, input: String)
+//    func displaySelectedHistory(history: MainModels.HistoryViewModel)
 }
 
 class MainInteractor: MainBusinessLogic {
+    
     var presenter: MainPresentationLogic?
-    private let viewModel = MainViewModel()
+    private let viewModel = MainIOWorker()
 
     func clear(displayText: String, gotResult: Bool) {
         viewModel.clear(displayText: displayText, gotResult: gotResult) { [weak self] output in
             self?.presenter?.presentOutput(output)
         }
+    }
+    
+    func clearAll() {
+        presenter?.presentResult(result: "0", expression: "")
     }
 
     func calculate(expression: String) {
@@ -34,4 +41,8 @@ class MainInteractor: MainBusinessLogic {
             self?.presenter?.presentOutput(output)
         }
     }
+    
+//    func displaySelectedHistory(history: MainModels.HistoryViewModel) {
+//        presenter?.presentResult(result: history.answer, expression: history.expression)
+//    }
 }

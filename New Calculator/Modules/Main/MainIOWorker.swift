@@ -7,7 +7,7 @@
 
 import Foundation
 
-class MainViewModel {
+class MainIOWorker {
     
     private let userDefaultsManager = UserDefaultsManager()
     private let calculator = Calculator()
