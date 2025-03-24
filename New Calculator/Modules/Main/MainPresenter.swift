@@ -8,21 +8,27 @@
 import Foundation
 
 protocol MainPresentationLogic {
-    func presentOutput(_ output: String)
-    func presentResult(result: String, expression: String)
+    func presentDisplayUpdate(_ text: String)
+    func presentCalculationResult(result: String, expression: String)
+    func presentCalculationReset()
 }
 
 class MainPresenter: MainPresentationLogic {
     
     weak var viewController: MainDisplayLogic?
 
-    func presentOutput(_ output: String) {
-        let viewModel = MainModels.OutputViewModel(outputText: output)
-        viewController?.displayOutput(viewModel)
+    func presentDisplayUpdate(_ text: String) {
+        let viewModel = MainModels.DisplayViewModel(displayText: text)
+        viewController?.displayUpdate(viewModel)
     }
 
-    func presentResult(result: String, expression: String) {
-        let viewModel = MainModels.ResultViewModel(resultText: result, expressionText: expression)
-        viewController?.displayResult(viewModel)
+    func presentCalculationResult(result: String, expression: String) {
+        let viewModel = MainModels.CalculationViewModel(result: result, expression: expression)
+        viewController?.displayCalculation(viewModel)
+    }
+    
+    func presentCalculationReset() {
+        let viewModel = MainModels.CalculationViewModel(result: "0", expression: "")
+        viewController?.displayCalculation(viewModel)
     }
 }

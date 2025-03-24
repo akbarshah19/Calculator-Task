@@ -9,8 +9,8 @@ import UIKit
 import SwiftUI
 
 protocol MainDisplayLogic: AnyObject {
-    func displayOutput(_ viewModel: MainModels.OutputViewModel)
-    func displayResult(_ viewModel: MainModels.ResultViewModel)
+    func displayUpdate(_ viewModel: MainModels.DisplayViewModel)
+    func displayCalculation(_ viewModel: MainModels.CalculationViewModel)
 }
 
 class MainViewController: UIViewController {
@@ -34,7 +34,7 @@ class MainViewController: UIViewController {
         view.backgroundColor = .black
         keyPadView.delegate = self
         setupUI()
-        setupNavBarButton()
+        setupNavBarButtons()
     }
     
     private func setupVIP() {
@@ -52,7 +52,7 @@ class MainViewController: UIViewController {
         self.router = router
     }
     
-    private func setupNavBarButton() {
+    private func setupNavBarButtons() {
         let historyButton = UIBarButtonItem(
             image: UIImage(systemName: "list.bullet"),
             style: .done,
@@ -109,25 +109,26 @@ class MainViewController: UIViewController {
     
     @objc
     private func presentHistory() {
-        router?.routeToHistory(from: self) { [weak self] history in
-            self?.interactor?.displaySelectedHistory(history: history)
+        router?.presentHistory(from: self) { [weak self] history in
+            self?.interactor?.handleHistorySelection(history: history)
         }
     }
 }
 
 extension MainViewController: MainDisplayLogic {
-    func displayOutput(_ viewModel: MainModels.OutputViewModel) {
-        displayView.label.text = viewModel.outputText
+    func displayUpdate(_ viewModel: MainModels.DisplayViewModel) {
+        displayView.label.text = viewModel.displayText
         displayView.resultLabel.text = ""
-        
-        displayView.scrollToRight()
-        displayView.scrollResultToRight()
+        updateDisplayScrolling()
     }
 
-    func displayResult(_ viewModel: MainModels.ResultViewModel) {
-        displayView.label.text = viewModel.resultText
-        displayView.resultLabel.text = viewModel.expressionText
-        
+    func displayCalculation(_ viewModel: MainModels.CalculationViewModel) {
+        displayView.label.text = viewModel.result
+        displayView.resultLabel.text = viewModel.expression
+        updateDisplayScrolling()
+    }
+    
+    private func updateDisplayScrolling() {
         displayView.scrollToRight()
         displayView.scrollResultToRight()
     }
@@ -135,19 +136,19 @@ extension MainViewController: MainDisplayLogic {
 
 extension MainViewController: KeyPadViewDelegate {
     func didPressClear() {
-        interactor?.clear(displayText: displayView.label.text ?? "", gotResult: displayView.gotResult)
+        interactor?.handleClearButton(displayText: displayView.label.text ?? "", gotResult: displayView.gotResult)
     }
 
     func didPressClearAll() {
-        interactor?.clearAll()
+        interactor?.handleClearAllButton()
     }
 
     func didPressCalculate() {
-        interactor?.calculate(expression: displayView.label.text ?? "")
+        interactor?.handleCalculateButton(expression: displayView.label.text ?? "")
     }
 
     func didPressKey(_ text: String) {
-        interactor?.appendSymbol(labelText: displayView.label.text ?? "", input: text)
+        interactor?.handleSymbolInput(currentText: displayView.label.text ?? "", newSymbol: text)
     }
 }
 

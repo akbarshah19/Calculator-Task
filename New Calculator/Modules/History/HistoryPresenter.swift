@@ -8,39 +8,38 @@
 import Foundation 
 
 protocol HistoryPresentationLogic {
-    func presentTableUpdate(with list: [HistoryModels.History])
-    func returnAndDismiss(history: HistoryModels.History)
-    func deleteAndUpdate(at indexPath: IndexPath)
-    func dismiss()
-    func changeTableEditMode()
-    func clearHistory()
+    func presentHistory(_ list: [HistoryModels.History])
+    func presentSelectedHistory(_ history: HistoryModels.History)
+    func presentDeletedHistory(at indexPath: IndexPath)
+    func presentDismiss()
+    func presentEditModeChange()
+    func presentEmptyHistory()
 }
 
 class HistoryPresenter: HistoryPresentationLogic {
-    
     weak var viewController: HistoryDisplayLogic?
     
-    func presentTableUpdate(with list: [HistoryModels.History]) {
-        viewController?.updateTableView(with: list)
+    func presentHistory(_ list: [HistoryModels.History]) {
+        viewController?.displayHistory(list)
     }
     
-    func returnAndDismiss(history: HistoryModels.History) {
-        viewController?.returnAndDismiss(history: history)
+    func presentSelectedHistory(_ history: HistoryModels.History) {
+        viewController?.displaySelectedHistory(history)
     }
     
-    func deleteAndUpdate(at indexPath: IndexPath) {
-        viewController?.deleteAndUpdate(at: indexPath)
+    func presentDeletedHistory(at indexPath: IndexPath) {
+        viewController?.displayDeletedHistory(at: indexPath)
     }
     
-    func dismiss() {
-        viewController?.dismiss()
+    func presentDismiss() {
+        viewController?.displayDismiss()
     }
     
-    func changeTableEditMode() {
-        
+    func presentEditModeChange() {
+        viewController?.displayEditModeChange()
     }
     
-    func clearHistory() {
-        viewController?.updateTableView(with: [])
+    func presentEmptyHistory() {
+        viewController?.displayHistory([])
     }
 }

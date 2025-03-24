@@ -8,41 +8,41 @@
 import Foundation
 
 protocol MainBusinessLogic {
-    func clear(displayText: String, gotResult: Bool)
-    func clearAll()
-    func calculate(expression: String)
-    func appendSymbol(labelText: String, input: String)
-    func displaySelectedHistory(history: HistoryModels.History)
+    func handleClearButton(displayText: String, gotResult: Bool)
+    func handleClearAllButton()
+    func handleCalculateButton(expression: String)
+    func handleSymbolInput(currentText: String, newSymbol: String)
+    func handleHistorySelection(history: HistoryModels.History)
 }
 
 class MainInteractor: MainBusinessLogic {
     
     var presenter: MainPresentationLogic?
-    private let viewModel = MainIOWorker()
+    private let calculator = MainIOWorker()
 
-    func clear(displayText: String, gotResult: Bool) {
-        viewModel.clear(displayText: displayText, gotResult: gotResult) { [weak self] output in
-            self?.presenter?.presentOutput(output)
+    func handleClearButton(displayText: String, gotResult: Bool) {
+        calculator.clear(displayText: displayText, gotResult: gotResult) { [weak self] output in
+            self?.presenter?.presentDisplayUpdate(output)
         }
     }
     
-    func clearAll() {
-        presenter?.presentResult(result: "0", expression: "")
+    func handleClearAllButton() {
+        presenter?.presentCalculationReset()
     }
 
-    func calculate(expression: String) {
-        viewModel.calculate(expression: expression) { [weak self] result, expression in
-            self?.presenter?.presentResult(result: result, expression: expression)
+    func handleCalculateButton(expression: String) {
+        calculator.calculate(expression: expression) { [weak self] result, expression in
+            self?.presenter?.presentCalculationResult(result: result, expression: expression)
         }
     }
 
-    func appendSymbol(labelText: String, input: String) {
-        viewModel.appendSymbol(labelText: labelText, input: input) { [weak self] output in
-            self?.presenter?.presentOutput(output)
+    func handleSymbolInput(currentText: String, newSymbol: String) {
+        calculator.appendSymbol(labelText: currentText, input: newSymbol) { [weak self] output in
+            self?.presenter?.presentDisplayUpdate(output)
         }
     }
     
-    func displaySelectedHistory(history: HistoryModels.History) {
-        presenter?.presentResult(result: history.answer, expression: history.expression)
+    func handleHistorySelection(history: HistoryModels.History) {
+        presenter?.presentCalculationResult(result: history.answer, expression: history.expression)
     }
 }

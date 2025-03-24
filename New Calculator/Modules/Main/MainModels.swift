@@ -8,13 +8,13 @@
 import Foundation
 
 enum MainModels {
-    struct OutputViewModel {
-        let outputText: String
+    struct DisplayViewModel {
+        let displayText: String
     }
 
-    struct ResultViewModel {
-        let resultText: String
-        let expressionText: String
+    struct CalculationViewModel {
+        let result: String
+        let expression: String
     }
     
     struct HistoryViewModel {

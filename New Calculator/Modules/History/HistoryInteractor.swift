@@ -9,50 +9,48 @@ import Foundation
 
 protocol HistoryBusinessLogic {
     func fetchHistory()
-    func selectHistory(model: HistoryModels.History)
-    func deleteHistory(at indexPath: IndexPath)
-    func didPressDone()
-    func changeTableEditMode()
-    func clearHistory()
+    func selectHistoryItem(model: HistoryModels.History) // Renamed for clarity
+    func deleteHistoryItem(at indexPath: IndexPath) // Renamed for clarity
+    func handleDoneButtonTapped() // Renamed for clarity
+    func toggleEditMode() // Renamed for clarity
+    func clearAllHistory() // Renamed for clarity
 }
 
 class HistoryInteractor: HistoryBusinessLogic {
-    
     var presenter: HistoryPresentationLogic?
-    
     private var userDefaultsManager = UserDefaultsManager()
 
     func fetchHistory() {
         do {
             let list = try userDefaultsManager.getHistory()
-            presenter?.presentTableUpdate(with: list)
+            presenter?.presentHistory(list) // We'll rename this in presenter
         } catch {
             print(error)
         }
     }
     
-    func selectHistory(model: HistoryModels.History) {
-        presenter?.returnAndDismiss(history: model)
+    func selectHistoryItem(model: HistoryModels.History) {
+        presenter?.presentSelectedHistory(model) // We'll rename this in presenter
     }
     
-    func deleteHistory(at indexPath: IndexPath) {
+    func deleteHistoryItem(at indexPath: IndexPath) {
         do {
             try userDefaultsManager.removeHistory(at: indexPath.row)
-            presenter?.deleteAndUpdate(at: indexPath)
+            presenter?.presentDeletedHistory(at: indexPath)
         } catch {
             print(error)
         }
     }
     
-    func didPressDone() {
-        presenter?.dismiss()
+    func handleDoneButtonTapped() {
+        presenter?.presentDismiss()
     }
     
-    func changeTableEditMode() {
-        presenter?.changeTableEditMode()
+    func toggleEditMode() {
+        presenter?.presentEditModeChange()
     }
     
-    func clearHistory() {
+    func clearAllHistory() {
         userDefaultsManager.clearHistory()
         fetchHistory()
     }

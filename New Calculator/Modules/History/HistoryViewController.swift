@@ -8,11 +8,11 @@
 import UIKit
 
 protocol HistoryDisplayLogic: AnyObject {
-    func updateTableView(with list: [HistoryModels.History])
-    func returnAndDismiss(history: HistoryModels.History)
-    func deleteAndUpdate(at indexPath: IndexPath)
-    func changeTableEditMode()
-    func dismiss()
+    func displayHistory(_ list: [HistoryModels.History])
+    func displaySelectedHistory(_ history: HistoryModels.History)
+    func displayDeletedHistory(at indexPath: IndexPath)
+    func displayEditModeChange()
+    func displayDismiss()
 }
 
 class HistoryViewController: UIViewController {
@@ -136,12 +136,12 @@ class HistoryViewController: UIViewController {
     
     @objc
     private func didPressDone() {
-        interactor?.didPressDone()
+        interactor?.handleDoneButtonTapped()
     }
     
     @objc
     private func didPressEdit() {
-        interactor?.changeTableEditMode()
+        interactor?.toggleEditMode()
     }
     
     @objc
@@ -154,7 +154,7 @@ class HistoryViewController: UIViewController {
         
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         let clear = UIAlertAction(title: "Clear History", style: .destructive) { [weak self] _ in
-            self?.interactor?.clearHistory()
+            self?.interactor?.clearAllHistory()
         }
         actionSheet.addAction(cancel)
         actionSheet.addAction(clear)
@@ -165,50 +165,38 @@ class HistoryViewController: UIViewController {
 
 //MARK: - HistoryDisplayLogic
 extension HistoryViewController: HistoryDisplayLogic {
-    func updateTableView(with list: [HistoryModels.History]) {
+    func displayHistory(_ list: [HistoryModels.History]) {
         historyList = list
-        if list.count > 0 {
-            tableView.isHidden = false
-            blurView.isHidden = false
-            emptyView.isHidden = true
-        } else {
-            emptyView.isHidden = false
-            tableView.isHidden = true
-            blurView.isHidden = true
-        }
+        let isEmpty = list.isEmpty
+        
+        tableView.isHidden = isEmpty
+        blurView.isHidden = isEmpty
+        emptyView.isHidden = !isEmpty
+        
         tableView.reloadData()
     }
     
-    func returnAndDismiss(history: HistoryModels.History) {
+    func displaySelectedHistory(_ history: HistoryModels.History) {
         onSelect?(history)
         router?.dismiss()
     }
     
-    func deleteAndUpdate(at indexPath: IndexPath) {
+    func displayDeletedHistory(at indexPath: IndexPath) {
         historyList.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .automatic)
         interactor?.fetchHistory()
     }
     
-    func dismiss() {
+    func displayDismiss() {
         router?.dismiss()
     }
     
-    func changeTableEditMode() {
+    func displayEditModeChange() {
         tableView.setEditing(!tableView.isEditing, animated: true)
-        if tableView.isEditing {
-            editButton.setTitle("Done", for: .normal)
-            clearButton.isEnabled = false
-            doneButton.isHidden = true
-        } else {
-            editButton.setTitle("Edit", for: .normal)
-            clearButton.isEnabled = true
-            doneButton.isHidden = false
-        }
-    }
-    
-    func updateTableView() {
-        interactor?.fetchHistory()
+        let isEditing = tableView.isEditing
+        
+        editButton.setTitle(isEditing ? "Done" : "Edit", for: .normal)
+        clearButton.isEnabled = !isEditing
     }
 }
 
@@ -235,7 +223,7 @@ extension HistoryViewController: UITableViewDelegate, UITableViewDataSource {
         
         if !tableView.isEditing {
             let model = historyList[indexPath.row]
-            interactor?.selectHistory(model: model)
+            interactor?.selectHistoryItem(model: model)
         }
     }
     
@@ -245,6 +233,6 @@ extension HistoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard editingStyle == .delete else { return }
-        interactor?.deleteHistory(at: indexPath)
+        interactor?.deleteHistoryItem(at: indexPath)
     }
 }

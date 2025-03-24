@@ -19,9 +19,9 @@ class KeyPadView: UIView, UICollectionViewDelegateFlowLayout, UICollectionViewDa
     private let spacing: CGFloat = 10.0
     private var buttons: [CalculatorButton] {
         if UIDevice.current.orientation.isLandscape {
-            return Constants.portraitButtons
-        } else {
             return Constants.landscapeButtons
+        } else {
+            return Constants.portraitButtons
         }
     }
     

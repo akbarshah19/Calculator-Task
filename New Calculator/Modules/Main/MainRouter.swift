@@ -8,14 +8,14 @@
 import UIKit
 
 protocol MainRoutingLogic {
-    func routeToHistory(from viewController: MainViewController, callback: @escaping (_ history: HistoryModels.History) -> Void)
+    func presentHistory(from viewController: MainViewController, callback: @escaping (_ history: HistoryModels.History) -> Void)
 }
 
 class MainRouter: MainRoutingLogic {
     
     weak var viewController: MainViewController?
 
-    func routeToHistory(from viewController: MainViewController, callback: @escaping (_ history: HistoryModels.History) -> Void) {
+    func presentHistory(from viewController: MainViewController, callback: @escaping (_ history: HistoryModels.History) -> Void) {
         let historyVC = HistoryViewController()
         historyVC.onSelect = { history in
             callback(history)
