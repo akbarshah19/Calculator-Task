@@ -14,7 +14,7 @@ protocol MainDisplayLogic: AnyObject {
 }
 
 class MainViewController: UIViewController {
-    
+
     var interactor: MainBusinessLogic?
     private var router: MainRoutingLogic?
     
@@ -22,7 +22,6 @@ class MainViewController: UIViewController {
     private let displayView = DisplayLabelView()
     private let keyPadView = KeyPadView()
     
-    private let viewModel = MainIOWorker()
     private var keyPadViewHeight: NSLayoutConstraint?
     private var intitialCellHeight: CGFloat {
         let cellWidth = (view.frame.size.width - 30 - 20) / 4
@@ -110,8 +109,8 @@ class MainViewController: UIViewController {
     
     @objc
     private func presentHistory() {
-        router?.routeToHistory(from: self) { history in
-            print(history)
+        router?.routeToHistory(from: self) { [weak self] history in
+            self?.interactor?.displaySelectedHistory(history: history)
         }
     }
 }

@@ -56,7 +56,7 @@ class HistoryTableViewCell: UITableViewCell {
         ])
     }
 
-    func configure(with history: History) {
+    func configure(with history: HistoryModels.History) {
         expressionLabel.text = history.expression
         resultLabel.text = history.answer
     }

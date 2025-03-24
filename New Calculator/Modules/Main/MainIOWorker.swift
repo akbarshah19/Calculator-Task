@@ -24,7 +24,7 @@ class MainIOWorker {
         let result = calculator.calculate(expression: expr)
         
         if result != expression {
-            let history = History(id: UUID().uuidString, expression: expr, answer: result, date: .now)
+            let history = HistoryModels.History(id: UUID().uuidString, expression: expr, answer: result, date: .now)
             completion(result, expr)
             try? userDefaultsManager.addHistory(history)
         }

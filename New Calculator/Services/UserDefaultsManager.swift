@@ -17,31 +17,37 @@ struct UserDefaultsManager {
     private let key = "CALCULATIONS"
     private let ud = UserDefaults.standard
 
-    func getHistory() throws -> [History] {
+    func getHistory() throws -> [HistoryModels.History] {
         guard let data = ud.data(forKey: key) else {
             return []
         }
 
         do {
-            return try JSONDecoder().decode([History].self, from: data)
+            return try JSONDecoder().decode([HistoryModels.History].self, from: data)
         } catch {
             throw UserDefaultsManagerError(message: "Failed to decode: \(error.localizedDescription)")
         }
     }
 
-    func addHistory(_ history: History) throws {
+    func addHistory(_ history: HistoryModels.History) throws {
         var list = try getHistory()
         list.append(history)
         try save(list: list)
     }
 
-    func removeHistory(_ history: History) throws {
+    func removeHistory(_ history: HistoryModels.History) throws {
         var list = try getHistory()
         list.removeAll { $0.id == history.id }
         try save(list: list)
     }
     
-    func removeHistories(_ histories: [History]) throws {
+    func removeHistory(at index: Int) throws {
+        var list = try getHistory()
+        list.remove(at: index)
+        try save(list: list)
+    }
+    
+    func removeHistories(_ histories: [HistoryModels.History]) throws {
         let list = try getHistory()
         
         
@@ -53,7 +59,7 @@ struct UserDefaultsManager {
         ud.removeObject(forKey: key)
     }
 
-    private func save(list: [History]) throws {
+    private func save(list: [HistoryModels.History]) throws {
         do {
             let data = try JSONEncoder().encode(list)
             ud.set(data, forKey: key)

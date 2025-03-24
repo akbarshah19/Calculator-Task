@@ -12,7 +12,7 @@ protocol MainBusinessLogic {
     func clearAll()
     func calculate(expression: String)
     func appendSymbol(labelText: String, input: String)
-//    func displaySelectedHistory(history: MainModels.HistoryViewModel)
+    func displaySelectedHistory(history: HistoryModels.History)
 }
 
 class MainInteractor: MainBusinessLogic {
@@ -42,7 +42,7 @@ class MainInteractor: MainBusinessLogic {
         }
     }
     
-//    func displaySelectedHistory(history: MainModels.HistoryViewModel) {
-//        presenter?.presentResult(result: history.answer, expression: history.expression)
-//    }
+    func displaySelectedHistory(history: HistoryModels.History) {
+        presenter?.presentResult(result: history.answer, expression: history.expression)
+    }
 }

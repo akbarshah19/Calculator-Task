@@ -7,13 +7,23 @@
 
 import UIKit
 
-class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+protocol HistoryDisplayLogic: AnyObject {
+    func displayFetchedHistory(list: [HistoryModels.History])
+    func returnAndDismiss(history: HistoryModels.History)
+    func deleteAndUpdate(at indexPath: IndexPath)
+    func changeTableEditMode()
+    func dismiss()
+    func updateTableView()
+}
+
+class HistoryViewController: UIViewController {
     
-    var didSelect: ((_ history: History) -> Void)?
-        
-    private var userDefaultsManager = UserDefaultsManager()
-    private var historyList: [History] = []
+    var onSelect: ((_ history: HistoryModels.History) -> Void)?
     
+    var interactor: HistoryBusinessLogic?
+    private var router: HistoryRoutingLogic?
+    
+    private var historyList: [HistoryModels.History] = []
     private let emptyView = HistoryEmptyView()
     
     private let blurView: UIVisualEffectView = {
@@ -61,27 +71,39 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupVIP()
+        interactor?.fetchHistory()
+        
+        view.addSubview(tableView)
+        tableView.frame = view.bounds
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.register(
+            HistoryTableViewCell.self,
+            forCellReuseIdentifier: HistoryTableViewCell.reuseIdentifier
+        )
         
-        getHistory()
-        addSubviews()
         setupBottomBar()
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: doneButton)
-        tableView.register(HistoryTableViewCell.self, forCellReuseIdentifier: HistoryTableViewCell.reuseIdentifier)
         doneButton.addTarget(self, action: #selector(didPressDone), for: .touchUpInside)
         editButton.addTarget(self, action: #selector(didPressEdit), for: .touchUpInside)
         clearButton.addTarget(self, action: #selector(didPressClear), for: .touchUpInside)
     }
     
-    private func addSubviews() {
-        view.addSubview(tableView)
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        tableView.frame = view.bounds
+    private func setupVIP() {
+        let viewController = self
+        let interactor = HistoryInteractor()
+        let presenter = HistoryPresenter()
+        let router = HistoryRouter()
+        
+        viewController.interactor = interactor
+        interactor.presenter = presenter
+        presenter.viewController = viewController
+        router.viewController = viewController
+        
+        self.interactor = interactor
+        self.router = router
     }
     
     private func setupBottomBar() {
@@ -115,21 +137,12 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     @objc
     private func didPressDone() {
-        dismiss(animated: true)
+        interactor?.didPressDone()
     }
     
     @objc
     private func didPressEdit() {
-        tableView.setEditing(!tableView.isEditing, animated: true)
-        if tableView.isEditing {
-            editButton.setTitle("Done", for: .normal)
-            clearButton.isEnabled = false
-            doneButton.isHidden = true
-        } else {
-            editButton.setTitle("Edit", for: .normal)
-            clearButton.isEnabled = true
-            doneButton.isHidden = false
-        }
+        interactor?.changeTableEditMode()
     }
     
     @objc
@@ -142,34 +155,89 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         let clear = UIAlertAction(title: "Clear History", style: .destructive) { [weak self] _ in
-            self?.userDefaultsManager.clearHistory()
-            self?.getHistory()
+            self?.interactor?.clearHistory()
         }
         actionSheet.addAction(cancel)
         actionSheet.addAction(clear)
         
         present(actionSheet, animated: true)
     }
+}
+
+//MARK: - HistoryDisplayLogic
+extension HistoryViewController: HistoryDisplayLogic {
+    func displayFetchedHistory(list: [HistoryModels.History]) {
+        historyList = list
+        if list.count > 0 {
+            tableView.isHidden = false
+            blurView.isHidden = false
+            emptyView.isHidden = true
+        } else {
+            emptyView.isHidden = false
+            tableView.isHidden = true
+            blurView.isHidden = true
+        }
+        tableView.reloadData()
+    }
+    
+    func returnAndDismiss(history: HistoryModels.History) {
+        onSelect?(history)
+        router?.dismiss()
+    }
+    
+    func deleteAndUpdate(at indexPath: IndexPath) {
+        historyList.remove(at: indexPath.row)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+        interactor?.fetchHistory()
+    }
+    
+    func dismiss() {
+        router?.dismiss()
+    }
+    
+    func changeTableEditMode() {
+        tableView.setEditing(!tableView.isEditing, animated: true)
+        if tableView.isEditing {
+            editButton.setTitle("Done", for: .normal)
+            clearButton.isEnabled = false
+            doneButton.isHidden = true
+        } else {
+            editButton.setTitle("Edit", for: .normal)
+            clearButton.isEnabled = true
+            doneButton.isHidden = false
+        }
+    }
+    
+    func updateTableView() {
+        interactor?.fetchHistory()
+    }
+}
+
+//MARK: - TableView Delegate and DataSource
+extension HistoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return historyList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: HistoryTableViewCell.reuseIdentifier, for: indexPath) as! HistoryTableViewCell
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: HistoryTableViewCell.reuseIdentifier,
+            for: indexPath
+        ) as! HistoryTableViewCell
         
-        let history = historyList[indexPath.row]
-        cell.configure(with: history)
-        
+        let model = historyList[indexPath.row]
+        cell.configure(with: model)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if !tableView.isEditing {
-            didSelect?(historyList[indexPath.row])
-            dismiss(animated: true)
-        }
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        if !tableView.isEditing {
+            let model = historyList[indexPath.row]
+            interactor?.selectHistory(model: model)
+        }
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -177,40 +245,7 @@ class HistoryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            do {
-                try userDefaultsManager.removeHistory(historyList[indexPath.row])
-            } catch {
-                print(error)
-            }
-            
-            historyList.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            getHistory()
-        }
-    }
-    
-    private func getHistory() {
-        do {
-            let result = try userDefaultsManager.getHistory()
-            DispatchQueue.main.async { [weak self] in
-                self?.historyList = result.reversed()
-                
-                if result.count > 0 {
-                    self?.tableView.isHidden = false
-                    self?.blurView.isHidden = false
-                    self?.emptyView.isHidden = true
-                } else {
-                    self?.emptyView.isHidden = false
-                    self?.tableView.isHidden = true
-                    self?.blurView.isHidden = true
-                }
-                
-                self?.setupBottomBar()
-                self?.tableView.reloadData()
-            }
-        } catch {
-            print(error)
-        }
+        guard editingStyle == .delete else { return }
+        interactor?.deleteHistory(at: indexPath)
     }
 }
