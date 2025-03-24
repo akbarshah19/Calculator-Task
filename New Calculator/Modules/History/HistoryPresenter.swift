@@ -8,7 +8,7 @@
 import Foundation 
 
 protocol HistoryPresentationLogic {
-    func presentFetchedHistory(list: [HistoryModels.History])
+    func presentTableUpdate(with list: [HistoryModels.History])
     func returnAndDismiss(history: HistoryModels.History)
     func deleteAndUpdate(at indexPath: IndexPath)
     func dismiss()
@@ -20,8 +20,8 @@ class HistoryPresenter: HistoryPresentationLogic {
     
     weak var viewController: HistoryDisplayLogic?
     
-    func presentFetchedHistory(list: [HistoryModels.History]) {
-        viewController?.displayFetchedHistory(list: list)
+    func presentTableUpdate(with list: [HistoryModels.History]) {
+        viewController?.updateTableView(with: list)
     }
     
     func returnAndDismiss(history: HistoryModels.History) {
@@ -41,6 +41,6 @@ class HistoryPresenter: HistoryPresentationLogic {
     }
     
     func clearHistory() {
-        viewController?.updateTableView()
+        viewController?.updateTableView(with: [])
     }
 }

@@ -8,12 +8,11 @@
 import UIKit
 
 protocol HistoryDisplayLogic: AnyObject {
-    func displayFetchedHistory(list: [HistoryModels.History])
+    func updateTableView(with list: [HistoryModels.History])
     func returnAndDismiss(history: HistoryModels.History)
     func deleteAndUpdate(at indexPath: IndexPath)
     func changeTableEditMode()
     func dismiss()
-    func updateTableView()
 }
 
 class HistoryViewController: UIViewController {
@@ -166,7 +165,7 @@ class HistoryViewController: UIViewController {
 
 //MARK: - HistoryDisplayLogic
 extension HistoryViewController: HistoryDisplayLogic {
-    func displayFetchedHistory(list: [HistoryModels.History]) {
+    func updateTableView(with list: [HistoryModels.History]) {
         historyList = list
         if list.count > 0 {
             tableView.isHidden = false

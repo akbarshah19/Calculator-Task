@@ -25,7 +25,7 @@ class HistoryInteractor: HistoryBusinessLogic {
     func fetchHistory() {
         do {
             let list = try userDefaultsManager.getHistory()
-            presenter?.presentFetchedHistory(list: list)
+            presenter?.presentTableUpdate(with: list)
         } catch {
             print(error)
         }
