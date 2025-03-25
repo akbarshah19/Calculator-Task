@@ -1,72 +1,55 @@
 //
-//  MainViewModel.swift
+//  IOManager.swift
 //  New Calculator
 //
-//  Created by Akbar Jumanazarov on 14/03/25.
+//  Created by Akbarshah Jumanazarov on 3/25/25.
 //
 
 import Foundation
 
-class MainIOWorker {
+struct IOManager {
     
-    private let userDefaultsManager = UserDefaultsManager()
-    private let calculator = Calculator()
-    
-    var buttons: [CalculatorButton] = Constants.portraitButtons
-    
-    func calculate(expression: String, completion: (_ result: String, _ expression: String) -> Void) {
+    func checkLast(_ expression: String) -> String {
         var expr = expression
         let symbols = ["+", "−", "×", "÷", "(", "."]
         if let last = expr.last, symbols.contains(String(last)) {
             expr.removeLast()
         }
-        
-        let result = calculator.calculate(expression: expr)
-        
-        if result != expression {
-            let history = HistoryModels.History(id: UUID().uuidString, expression: expr, answer: result, date: .now)
-            completion(result, expr)
-            try? userDefaultsManager.addHistory(history)
-        }
+        return expr
     }
     
-    func clear(displayText: String, gotResult: Bool, completion: (_ output: String) -> Void) {
+    func clear(displayText: String, gotResult: Bool) -> String {
         if gotResult || displayText == "Undefined" {
-            completion("0")
+            return "0"
         } else if displayText.count <= 1 {
-            completion("0")
+            return "0"
         } else {
             var updated = displayText
             updated.removeLast()
-            completion(updated)
+            return updated
         }
     }
     
-    func appendSymbol(labelText: String, input: String, completion: (_ output: String) -> Void) {
-        
+    func appendSymbol(labelText: String, input: String) -> String {
         var text: String = labelText
         let symbols = ["+", "×", "÷", "-", ","]
         
         if text == "0" {
             if input == "00" {
-                return
+                return text
             }
             
             if symbols.contains(input) {
                 switch input {
                 case ",":
-                    completion("0,")
-                    return
+                    return "0,"
                 case "-":
-                    completion("-")
-                    return
+                    return "-"
                 default:
-                    completion("0\(input)")
-                    return
+                    return "0\(input)"
                 }
             } else {
-                completion(input)
-                return
+                return input
             }
         }
         
@@ -75,16 +58,19 @@ class MainIOWorker {
             if nextIndex < text.endIndex {
                 let charAfterOperator = text[nextIndex]
                 if charAfterOperator == "0" && text.distance(from: nextIndex, to: text.endIndex) == 1 {
-                    // Only remove the 0 if it's the last character after an operator
                     text.removeLast()
                     text += input
-                    completion(text)
-                    return
+                    return text
                 }
             }
         }
         
-        //Replacing the last operator with new one e.g. "+-" -> "-"
+        // In cases like ')(' puts × inbetween -> ')×('
+        if let last = text.last, last == ")", input == "(" {
+            text += "×("
+            return text
+        }
+        
         if let last = text.last, symbols.contains(String(last)), symbols.contains(input) {
             text.removeLast()
             text += input
@@ -92,6 +78,6 @@ class MainIOWorker {
             text += input
         }
         
-        completion(text)
+        return text
     }
 }

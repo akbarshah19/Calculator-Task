@@ -18,12 +18,11 @@ protocol MainBusinessLogic {
 class MainInteractor: MainBusinessLogic {
     
     var presenter: MainPresentationLogic?
-    private let calculator = MainIOWorker()
+    private let calculator = MainWorker()
 
     func handleClearButton(displayText: String, gotResult: Bool) {
-        calculator.clear(displayText: displayText, gotResult: gotResult) { [weak self] output in
-            self?.presenter?.presentDisplayUpdate(output)
-        }
+        let output = calculator.clear(displayText: displayText, gotResult: gotResult)
+        presenter?.presentDisplayUpdate(output)
     }
     
     func handleClearAllButton() {
@@ -31,15 +30,13 @@ class MainInteractor: MainBusinessLogic {
     }
 
     func handleCalculateButton(expression: String) {
-        calculator.calculate(expression: expression) { [weak self] result, expression in
-            self?.presenter?.presentCalculationResult(result: result, expression: expression)
-        }
+        let (result, expression) = calculator.calculate(expression: expression)
+        presenter?.presentCalculationResult(result: result, expression: expression)
     }
 
     func handleSymbolInput(currentText: String, newSymbol: String) {
-        calculator.appendSymbol(labelText: currentText, input: newSymbol) { [weak self] output in
-            self?.presenter?.presentDisplayUpdate(output)
-        }
+        let output = calculator.appendSymbol(labelText: currentText, input: newSymbol)
+        presenter?.presentDisplayUpdate(output)
     }
     
     func handleHistorySelection(history: HistoryModels.History) {

@@ -23,7 +23,7 @@ struct UserDefaultsManager {
         }
 
         do {
-            return try JSONDecoder().decode([HistoryModels.History].self, from: data)
+            return try JSONDecoder().decode([HistoryModels.History].self, from: data).reversed()
         } catch {
             throw UserDefaultsManagerError(message: "Failed to decode: \(error.localizedDescription)")
         }

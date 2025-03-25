@@ -9,11 +9,11 @@ import Foundation
 
 protocol HistoryBusinessLogic {
     func fetchHistory()
-    func selectHistoryItem(model: HistoryModels.History) // Renamed for clarity
-    func deleteHistoryItem(at indexPath: IndexPath) // Renamed for clarity
-    func handleDoneButtonTapped() // Renamed for clarity
-    func toggleEditMode() // Renamed for clarity
-    func clearAllHistory() // Renamed for clarity
+    func selectHistoryItem(model: HistoryModels.History)
+    func deleteHistoryItem(at indexPath: IndexPath)
+    func handleDoneButtonTapped()
+    func toggleEditMode()
+    func clearAllHistory()
 }
 
 class HistoryInteractor: HistoryBusinessLogic {
@@ -23,14 +23,14 @@ class HistoryInteractor: HistoryBusinessLogic {
     func fetchHistory() {
         do {
             let list = try userDefaultsManager.getHistory()
-            presenter?.presentHistory(list) // We'll rename this in presenter
+            presenter?.presentHistory(list)
         } catch {
             print(error)
         }
     }
     
     func selectHistoryItem(model: HistoryModels.History) {
-        presenter?.presentSelectedHistory(model) // We'll rename this in presenter
+        presenter?.presentSelectedHistory(model)
     }
     
     func deleteHistoryItem(at indexPath: IndexPath) {

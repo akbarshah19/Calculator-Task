@@ -115,6 +115,7 @@ class MainViewController: UIViewController {
     }
 }
 
+//MARK: - MainDisplayLogic
 extension MainViewController: MainDisplayLogic {
     func displayUpdate(_ viewModel: MainModels.DisplayViewModel) {
         displayView.label.text = viewModel.displayText
@@ -134,6 +135,7 @@ extension MainViewController: MainDisplayLogic {
     }
 }
 
+//MARK: - KeyPadViewDelegate
 extension MainViewController: KeyPadViewDelegate {
     func didPressClear() {
         interactor?.handleClearButton(displayText: displayView.label.text ?? "", gotResult: displayView.gotResult)

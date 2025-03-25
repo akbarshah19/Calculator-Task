@@ -13,7 +13,7 @@ private enum EvaluationResult {
     case invalidExpression
 }
 
-class Calculator {
+struct Calculator {
     
     func calculate(expression: String) -> String {
         let refined = expression.replacingOccurrences(of: ",", with: ".")
