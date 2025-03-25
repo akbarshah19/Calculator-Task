@@ -11,16 +11,16 @@ class MainIOWorker {
     
     private let userDefaultsManager = UserDefaultsManager()
     private let calculator = Calculator()
-
+    
     var buttons: [CalculatorButton] = Constants.portraitButtons
-        
+    
     func calculate(expression: String, completion: (_ result: String, _ expression: String) -> Void) {
         var expr = expression
         let symbols = ["+", "−", "×", "÷", "(", "."]
         if let last = expr.last, symbols.contains(String(last)) {
             expr.removeLast()
         }
-
+        
         let result = calculator.calculate(expression: expr)
         
         if result != expression {
@@ -43,13 +43,15 @@ class MainIOWorker {
     }
     
     func appendSymbol(labelText: String, input: String, completion: (_ output: String) -> Void) {
+        
         var text: String = labelText
+        let symbols = ["+", "×", "÷", "-", ","]
+        
         if text == "0" {
             if input == "00" {
                 return
             }
             
-            let symbols = ["+", "×", "÷", "-", ","]
             if symbols.contains(input) {
                 switch input {
                 case ",":
@@ -67,8 +69,22 @@ class MainIOWorker {
                 return
             }
         }
-
-        let symbols = ["+", "×", "÷", "-", ","]
+        
+        if let lastCharIndex = text.lastIndex(where: { symbols.contains(String($0)) }) {
+            let nextIndex = text.index(after: lastCharIndex)
+            if nextIndex < text.endIndex {
+                let charAfterOperator = text[nextIndex]
+                if charAfterOperator == "0" && text.distance(from: nextIndex, to: text.endIndex) == 1 {
+                    // Only remove the 0 if it's the last character after an operator
+                    text.removeLast()
+                    text += input
+                    completion(text)
+                    return
+                }
+            }
+        }
+        
+        //Replacing the last operator with new one e.g. "+-" -> "-"
         if let last = text.last, symbols.contains(String(last)), symbols.contains(input) {
             text.removeLast()
             text += input
