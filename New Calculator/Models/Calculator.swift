@@ -76,24 +76,11 @@ struct Calculator {
                     number = ""
                 }
 
-                if char == "(" {
-                    // Implicit multiplication before '('
-                    if let prev = prevChar, prev.isNumber || prev == ")" {
-                        tokens.append("×")
-                    }
+                if char == "(" || char == ")" {
                     tokens.append(String(char))
-                } else if char == ")" {
-                    tokens.append(String(char))
-                    // Implicit multiplication after ')'
-                    if i + 1 < characters.count {
-                        let next = characters[i + 1]
-                        if next.isNumber || next == "(" {
-                            tokens.append("×")
-                        }
-                    }
                 } else if char == "-" {
                     if prevChar == nil || "+-×÷(".contains(prevChar!) {
-                        number.append(char) // negative number
+                        number.append(char) // Negative number
                     } else {
                         tokens.append(String(char))
                     }
