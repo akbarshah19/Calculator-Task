@@ -27,7 +27,7 @@ struct MainWorker {
             try? userDefaultsManager.addHistory(history)
             return (result, checkedExpression)
         }
-        return (expression, expression)
+        return (expression, "")
     }
     
     func clear(displayText: String, gotResult: Bool) -> String {

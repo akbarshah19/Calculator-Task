@@ -46,14 +46,6 @@ struct UserDefaultsManager {
         list.remove(at: index)
         try save(list: list)
     }
-    
-    func removeHistories(_ histories: [HistoryModels.History]) throws {
-        let list = try getHistory()
-        
-        
-        
-        try save(list: list)
-    }
 
     func clearHistory() {
         ud.removeObject(forKey: key)

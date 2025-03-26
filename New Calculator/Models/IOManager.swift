@@ -53,6 +53,16 @@ struct IOManager {
             }
         }
         
+        // Prevent operators (except "-") right after "("
+        if let last = text.last, last == "(", symbols.contains(input), input != "-" {
+            return text // Ignore the input
+        }
+
+        // Prevent multiple consecutive "-" (fixes "--" issue)
+        if text.count >= 2, let last = text.last, last == "-", symbols.contains(input)  {
+            return text
+        }
+        
         if let lastCharIndex = text.lastIndex(where: { symbols.contains(String($0)) }) {
             let nextIndex = text.index(after: lastCharIndex)
             if nextIndex < text.endIndex {
@@ -65,7 +75,7 @@ struct IOManager {
             }
         }
         
-        // In cases like ')(' puts × inbetween -> ')×('
+        // In cases like ")(" puts × in between -> ")×("
         if let last = text.last, last == ")", input == "(" {
             text += "×("
             return text
