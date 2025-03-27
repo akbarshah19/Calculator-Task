@@ -79,17 +79,12 @@ struct IOManager {
         
         // Prevent multiple commas in a single number (improved version)
         if input == "," {
-            // Split the text into parts by operators
-            let parts = text.split(whereSeparator: { symbols.contains(String($0)) })
-            
-            // Check the last part for existing comma
-            if let lastPart = parts.last, lastPart.contains(",") {
+            if let lastPart = extractCurrentNumber(from: text), lastPart.contains(",") {
                 return text // Ignore additional commas
             }
             
-            // Ignore comma right after an operator
             if let last = text.last, symbols.contains(String(last)) {
-                return text
+                return text // Ignore comma right after an operator
             }
         }
         
@@ -120,5 +115,19 @@ struct IOManager {
         }
         
         return text
+    }
+    
+    private func extractCurrentNumber(from expression: String) -> String? {
+        var currentNumber = ""
+        
+        for char in expression.reversed() {
+            if char.isNumber || char == "," {
+                currentNumber.append(char)
+            } else {
+                break
+            }
+        }
+        print(String(currentNumber.reversed()))
+        return String(currentNumber.reversed())
     }
 }
